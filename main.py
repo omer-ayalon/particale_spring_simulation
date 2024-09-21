@@ -21,17 +21,19 @@ class Particle:
         self.velocity = velocity
         self.mass = mass
         self.is_blocked = is_blocked
+        self.radius = 20
 
     def update(self):
         if not self.is_blocked:
-            # for par in particles:
-            #     if self != par:
-            #         # print(np.linalg.norm(np.subtract(self.pos, par.pos)))
-            #         if np.linalg.norm(np.subtract(self.pos, par.pos)) < 20:
-            #             # print('coll', self.pos[0] - par.pos[0])
-            #             self.acceleration = (self.pos - par.pos) / 5 + self.acceleration
-            #             # self.pos = self.pos - par.pos + self.pos
-            #             # print('coll')
+            for par in particles:
+                if self != par:
+                    # print(np.linalg.norm(np.subtract(self.pos, par.pos)))
+                    if np.linalg.norm(np.subtract(self.pos, par.pos)) < self.radius:
+                        # print('coll', self.pos[0] - par.pos[0])
+                        print((self.pos - par.pos)/1000000 - self.acceleration)
+                        # self.acceleration = ((self.pos - par.pos)/1000000000) - self.acceleration
+                        self.pos = self.pos - par.pos + self.pos
+                        # print(self.pos)
 
             if self.pos[1]+10 > height:
                 self.acceleration[1] = 0#(self.pos[1] - height) / 2
@@ -44,8 +46,8 @@ class Particle:
 
     def draw(self):
         idx = next((i for i, x in enumerate(particles) if x == self), None)
-        pygame.draw.circle(screen, colors[idx], self.pos, 10)
-        # pygame.draw.circle(screen, 'white', self.pos, 5)
+        pygame.draw.circle(screen, colors[idx], self.pos, self.radius)
+        # pygame.draw.circle(screen, 'white', self.pos, self.radius)
 
 
 colors = ['white', 'red', 'purple', 'blue', 'green', 'yellow']
@@ -73,7 +75,7 @@ class Spring:
         pygame.draw.line(screen, 'red', self.a.pos, self.b.pos)
 
 
-gravity = np.array([0, 0.1])
+gravity = np.array([0, 0.18])
 # gravity = np.array([0, 0])
 
 particles = []
@@ -81,8 +83,8 @@ particles.append(Particle(np.array([200, 50]), np.array([0, 0]), np.array([0, 0]
 particles.append(Particle(np.array([250, 50]), np.array([0, 0]), np.array([0, 0]), 1, False))
 particles.append(Particle(np.array([200, 100]), np.array([0, 0]), np.array([0, 0]), 1, False))
 particles.append(Particle(np.array([250, 100]), np.array([0, 0]), np.array([0, 0]), 1, False))
-# particles.append(Particle(np.array([300, 50]), np.array([0, 0]), np.array([0, 0]), 1, False))
-# particles.append(Particle(np.array([300, 100]), np.array([0, 0]), np.array([0, 0]), 1, False))
+particles.append(Particle(np.array([300, 50]), np.array([0, 0]), np.array([0, 0]), 1, False))
+particles.append(Particle(np.array([300, 100]), np.array([0, 0]), np.array([0, 0]), 1, False))
 
 springs = []
 springs.append(Spring(0.2, 70, particles[0], particles[3]))
@@ -92,11 +94,11 @@ springs.append(Spring(0.2, 50, particles[1], particles[3]))
 springs.append(Spring(0.2, 50, particles[3], particles[2]))
 springs.append(Spring(0.2, 50, particles[2], particles[0]))
 
-# springs.append(Spring(0.2, 50, particles[4], particles[5]))
-# springs.append(Spring(0.2, 50, particles[3], particles[4]))
-# springs.append(Spring(0.2, 50, particles[1], particles[5]))
-# springs.append(Spring(0.2, 50, particles[1], particles[4]))
-# springs.append(Spring(0.2, 50, particles[3], particles[5]))
+springs.append(Spring(0.2, 60, particles[4], particles[5]))
+springs.append(Spring(0.2, 60, particles[3], particles[4]))
+springs.append(Spring(0.2, 60, particles[1], particles[5]))
+springs.append(Spring(0.2, 60, particles[1], particles[4]))
+springs.append(Spring(0.2, 60, particles[3], particles[5]))
 
 # particles = []
 # num = 20
@@ -126,7 +128,7 @@ while True:
 
     if key:
         for par in particles:
-            par.acceleration[1] -= 0.5
+            par.acceleration[1] -= 5*gravity[1]
 
     # Update.
     for spring in springs:
@@ -134,7 +136,7 @@ while True:
         spring.draw()
 
     if pygame.mouse.get_pressed()[0]:
-        particles[-1].pos = pygame.mouse.get_pos()
+        particles[-1].pos = list(pygame.mouse.get_pos())
 
     for par in particles:
         par.update()
